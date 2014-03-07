@@ -1,9 +1,11 @@
 (in-package :cl)
 
 (defpackage :shpadoinkle
-  (:use :cl :iter)
+  (:use :cl :iter :named-readtables)
   (:export
-   #:with-saved-values))
+   #:with-saved-values
+   #:setup-readtable
+   #:in-readtable))
 
 (in-package :shpadoinkle)
 

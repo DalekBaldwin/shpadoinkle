@@ -12,7 +12,7 @@
    (:module :src
             :components ((:file "package")
                          (:file "shpadoinkle" :depends-on ("package")))))
-  :depends-on (:iterate))
+  :depends-on (:iterate :named-readtables))
 
 (defsystem :shpadoinkle-test
   :name "shpadoinkle-test"
