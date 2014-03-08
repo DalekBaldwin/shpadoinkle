@@ -1,9 +1,10 @@
 (in-package :cl)
 
 (defpackage :shpadoinkle
-  (:use :cl :iter :named-readtables)
+  (:use :cl :iter :alexandria :named-readtables)
   (:export
    #:with-saved-values
+   #:with-constructors
    #:setup-readtable
    #:in-readtable))
 
