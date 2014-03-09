@@ -1,1 +1,1 @@
-My random utilities.
+My miscellaneous utilities. Have a shpadoinkle day!
