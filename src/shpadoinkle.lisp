@@ -48,13 +48,12 @@
                                    `(make-instance ',(car ,stuff) ,@(cdr ,stuff)))))
          
          ;; Ignore entire form. Works just like `#+nil`.
-         ;; Good for commenting out multi-line s-expressions. The
-         ;; reader will still parse the form and complain about things
-         ;; before throwing it away, but I haven't yet bothered to
-         ;; figure out how to stop that.  Maybe it's for the best, so
-         ;; you don't leave so much commented-out code hanging around
-         ;; referring to things that haven't existed since twenty
-         ;; commits ago.
+         ;; Good for commenting out multi-line s-expressions. The reader will
+         ;; still parse the form and complain about things before throwing it
+         ;; away, but I haven't yet bothered to figure out how to stop that.
+         ;; Maybe it's for the best, so you don't leave so much commented-out
+         ;; code hanging around referring to things that haven't existed since
+         ;; twenty commits ago.
          (:dispatch-macro-char #\# #\!
                                (lambda (,stream ,subchar ,arg)
                                  (declare (ignore ,subchar ,arg))
@@ -62,9 +61,9 @@
                                  (values)))
          
          ;; (form) --> (copy-tree '(form))
-         ;; For when it's natural to express a list as a quoted form
-         ;; but you can't risk someone else mutating it, since
-         ;; implementations typically store quoted forms as constants.
+         ;; For when it's natural to express a list as a quoted form but you
+         ;; can't risk someone else mutating it, since implementations typically
+         ;; store quoted forms as constants.
          (:dispatch-macro-char #\# #\`
                                (lambda (,stream ,subchar ,arg)
                                  (declare (ignore ,subchar ,arg))
