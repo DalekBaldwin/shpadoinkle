@@ -13,7 +13,7 @@
    #:substitute-nth
    #:partial
    #:partial-pattern
-   ))
+   #:with-homonymous-accessors))
 
 (in-package :shpadoinkle)
 

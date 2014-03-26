@@ -114,3 +114,12 @@ symbol BLANK."
                         (collect (elt remaining-params blank-position))
                       (incf blank-position))
                     (collect arg)))))))
+
+(defmacro with-homonymous-accessors (slots instance &body body)
+  "Like WITH-ACCESSORS but with the brevity of WITH-SLOTS.
+Assumes all slots have an accessor with the same name."
+  `(with-accessors
+         (,@(iter (for slot in slots)
+                  (collect `(,slot ,slot))))
+       ,instance
+     ,@body))
