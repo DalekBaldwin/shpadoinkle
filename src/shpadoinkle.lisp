@@ -78,11 +78,11 @@ in the case of #\# #\`."
               (declare (ignore ,subchar ,arg))
               `(copy-tree (quote ,(read ,stream t nil t))))))))))
 
-(defmacro if-not-let (bindings &body (then-form &optional else-form))
+(defmacro if-not-let (bindings &body (else-form &optional then-form))
   "Like IF-LET for cases when it's more natural to express the else clause first."
   `(if-let ,bindings
-     ,else-form
-     ,then-form))
+     ,then-form
+     ,else-form))
 
 (defun substitute-nth (n list value)
   "Return a new version of LIST with VALUE at position N.
