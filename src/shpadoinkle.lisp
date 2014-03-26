@@ -14,7 +14,8 @@
 
 (defmacro with-constructors (names &body body)
   "Treat class NAMES like functions to call MAKE-INSTANCE.
-Helps clean up some code, but it's probably dangerous. Use the #/ read-macro
+This can make tests and example code shorter and clearer, but it's probably too
+dangerous for actually defining new functionality. Use the #/ read-macro
 instead."
   (with-gensyms (initargs)
     `(macrolet
