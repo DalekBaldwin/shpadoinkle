@@ -10,7 +10,10 @@
    ;; I like not having to make named-readtables an explicit dependency
    #:in-readtable
    #:if-not-let
-   #:substitute-nth))
+   #:substitute-nth
+   #:partial
+   #:partial-pattern
+   ))
 
 (in-package :shpadoinkle)
 

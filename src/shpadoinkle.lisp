@@ -1,7 +1,7 @@
 (in-package :shpadoinkle)
 
 (defmacro with-saved-values (places &body body)
-  "Restore values of setf-able places after normal or erroneous exit from body."
+  "Restore values of setf-able PLACES after normal or erroneous exit from BODY."
   (let ((let-bindings
          `(,@(iter (for place in places)
                    (collect `(,(gensym (format nil "SAVED-~A" place)) ,place))))))
@@ -13,9 +13,9 @@
                        (appending (reverse binding))))))))
 
 (defmacro with-constructors (names &body body)
-  "Treat class names like functions to call `make-instance`.
-   Helps clean up some code, but it's probably dangerous. Use the #/ read-macro
-   instead."
+  "Treat class NAMES like functions to call MAKE-INSTANCE.
+Helps clean up some code, but it's probably dangerous. Use the #/ read-macro
+instead."
   (with-gensyms (initargs)
     `(macrolet
          (,@(iter (for name in names)
@@ -25,8 +25,8 @@
 
 (defmacro setup-readtable (name)
   "Some read-macros I find convenient.
-   In Programmer Dvorak, they can all be typed with two adjacent keys. Or one
-   key, in the case of #\# #\`."
+In Programmer Dvorak, they can all be typed with two adjacent keys. Or one key,
+in the case of #\# #\`."
   (with-gensyms (stream subchar arg stuff)
     `(eval-when (:compile-toplevel :load-toplevel :execute)
        (unless (find-readtable ,name)
@@ -78,13 +78,38 @@
               `(copy-tree (quote ,(read ,stream t nil t))))))))))
 
 (defmacro if-not-let (bindings &body (then-form &optional else-form))
-  "Like `if-let` for cases when it's more natural to express the else clause first."
+  "Like IF-LET for cases when it's more natural to express the else clause first."
   `(if-let ,bindings
      ,else-form
      ,then-form))
 
 (defun substitute-nth (n list value)
-  "Return a new version of `list` with `value` at position `n`.
-   There's probably a more efficient way to do this."
+  "Return a new version of LIST with VALUE at position N.
+There's probably a more efficient way to do this."
   (append (subseq list 0 n)
           (cons value (subseq list (1+ n)))))
+
+(defmacro partial (function &rest args)
+  "Return a partially-applied version of FUNCTION with ARGS applied to the
+earliest parameters in the lambda list."
+  (with-gensyms (remaining-params)
+    `(lambda (&rest ,remaining-params)
+       (apply ,function ,@args ,remaining-params))))
+
+(defmacro partial-pattern (function blank partial-arg-pattern)
+  "Return a partially-applied function with the remaining arguments to be
+inserted at positions in the lambda list corresponding to appearances of the
+symbol BLANK."
+  (let ((remaining-params
+         (iter (for arg in partial-arg-pattern)
+               (when (eq arg blank)
+                 (collect (gensym)))))
+        (blank-position 0))
+    `(lambda ,remaining-params
+       (,function
+        ,@(iter (for arg in partial-arg-pattern)
+                (if (eq arg blank)
+                    (prog1
+                        (collect (elt remaining-params blank-position))
+                      (incf blank-position))
+                    (collect arg)))))))
