@@ -103,13 +103,13 @@ inserted at positions in the lambda list corresponding to appearances of the
 symbol BLANK."
   (let ((remaining-params
          (iter (for arg in partial-arg-pattern)
-               (when (eq arg blank)
+               (when (eql arg blank)
                  (collect (gensym)))))
         (blank-position 0))
     `(lambda ,remaining-params
        (,function
         ,@(iter (for arg in partial-arg-pattern)
-                (if (eq arg blank)
+                (if (eql arg blank)
                     (prog1
                         (collect (elt remaining-params blank-position))
                       (incf blank-position))
