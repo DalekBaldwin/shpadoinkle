@@ -122,3 +122,33 @@ symbol BLANK."
                   (collect `(,accessor ,accessor))))
        ,instance
      ,@body))
+
+(defmacro local-dlet (bindings &body body)
+  "Establish top-level lexically-scoped bindings that can be dynamically
+   shadowed with LOCAL-DRELET. A sort of FLUID-LET facility that uses LET
+   underneath and therefore can create thread-local bindings."
+  (let* ((bindings (iter (for binding in bindings)
+                         (collect (if (atom binding) (list binding) binding))))
+         (gensyms
+          (iter (for binding in bindings)
+                (collect (let ((var (first binding)))
+                           (cons var (gensym (symbol-name var))))))))
+    `(progn
+       ,@(iter (for binding in bindings)
+               (collect
+                   `(defvar ,(cdr (assoc (first binding) gensyms)) ,@(rest binding))))
+       (symbol-macrolet
+           (,@(iter (for binding in bindings)
+                    (collect
+                        (let ((var (first binding)))
+                          `(,var ,(cdr (assoc var gensyms)))))))
+         (macrolet ((local-drelet (dbindings &body body &environment env)
+                      (let ((dbindings (iter (for dbinding in dbindings)
+                                             (collect
+                                                 (if (atom dbinding) (list dbinding) dbinding)))))
+                        `(let (,@(iter (for dbinding in dbindings)
+                                       (collect
+                                           (let ((var (first dbinding)))
+                                             `(,(macroexpand var env) ,(second dbinding))))))
+                           ,@body))))
+           ,@body)))))

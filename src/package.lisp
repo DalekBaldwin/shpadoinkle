@@ -13,7 +13,9 @@
    #:substitute-nth
    #:partial
    #:partial-pattern
-   #:with-homonymous-accessors))
+   #:with-homonymous-accessors
+   #:local-dlet
+   #:local-drelet))
 
 (in-package :shpadoinkle)
 
