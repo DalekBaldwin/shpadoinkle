@@ -141,14 +141,19 @@ symbol BLANK."
            (,@(iter (for binding in bindings)
                     (collect
                         (let ((var (first binding)))
-                          `(,var ,(cdr (assoc var gensyms)))))))
+                          `(,var ,(cdr (assoc var gensyms))))))
+            (var-list (,@(iter (for binding in bindings)
+                               (collect (first binding))))))
          (macrolet ((local-drelet (dbindings &body body &environment env)
                       (let ((dbindings (iter (for dbinding in dbindings)
                                              (collect
-                                                 (if (atom dbinding) (list dbinding) dbinding)))))
+                                                 (if (atom dbinding) (list dbinding) dbinding))))
+                            (var-list (macroexpand 'var-list env)))
                         `(let (,@(iter (for dbinding in dbindings)
                                        (collect
                                            (let ((var (first dbinding)))
+                                             (unless (member var var-list)
+                                               (error "~A not declared with LOCAL-DLET" var))
                                              `(,(macroexpand var env) ,(second dbinding))))))
                            ,@body))))
            ,@body)))))
