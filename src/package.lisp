@@ -1,7 +1,7 @@
 (in-package :cl)
 
 (defpackage :shpadoinkle
-  (:use :cl :iter :alexandria :named-readtables :macroexpand-dammit)
+  (:use :cl :iter :alexandria :named-readtables)
   (:export
    #:with-saved-values
    #:with-constructors

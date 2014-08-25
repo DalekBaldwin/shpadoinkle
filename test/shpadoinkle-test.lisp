@@ -27,3 +27,11 @@
      (incf herp)
      (setf *derp* (caar nerp))
      (error "barfed"))))
+
+(deftest test-with-names ()
+  (with-names (a)
+      (label a (cons 1 (label-cons 2 a))) ;; #1=(1 2 . #1#)
+    (is (eql a (cddr a))))
+  (with-names (b)
+      (label b (label-list 1 2 b)) ;; #1=(1 2 #1#)
+    (is (eql b (third b)))))
