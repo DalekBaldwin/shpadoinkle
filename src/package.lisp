@@ -1,7 +1,7 @@
 (in-package :cl)
 
 (defpackage :shpadoinkle
-  (:use :cl :iter :alexandria :named-readtables)
+  (:use :cl :iter :alexandria :named-readtables :macroexpand-dammit)
   (:export
    #:with-saved-values
    #:with-constructors
@@ -15,7 +15,11 @@
    #:partial-pattern
    #:with-homonymous-accessors
    #:local-dlet
-   #:local-drelet))
+   #:local-drelet
+   #:with-names
+   #:label
+   #:label-cons
+   #:label-list))
 
 (in-package :shpadoinkle)
 

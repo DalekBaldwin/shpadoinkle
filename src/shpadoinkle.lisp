@@ -144,16 +144,95 @@ symbol BLANK."
                           `(,var ,(cdr (assoc var gensyms))))))
             (var-list (,@(iter (for binding in bindings)
                                (collect (first binding))))))
-         (macrolet ((local-drelet (dbindings &body body &environment env)
-                      (let ((dbindings (iter (for dbinding in dbindings)
-                                             (collect
-                                                 (if (atom dbinding) (list dbinding) dbinding))))
-                            (var-list (macroexpand 'var-list env)))
-                        `(let (,@(iter (for dbinding in dbindings)
+         (macrolet
+             ((local-drelet (dbindings &body body &environment env)
+                (let ((dbindings (iter (for dbinding in dbindings)
                                        (collect
-                                           (let ((var (first dbinding)))
-                                             (unless (member var var-list)
-                                               (error "~A not declared with LOCAL-DLET" var))
-                                             `(,(macroexpand var env) ,(second dbinding))))))
-                           ,@body))))
+                                           (if (atom dbinding) (list dbinding) dbinding))))
+                      (var-list (macroexpand 'var-list env)))
+                  `(let (,@(iter (for dbinding in dbindings)
+                                 (collect
+                                     (let ((var (first dbinding)))
+                                       (unless (member var var-list)
+                                         (error "~A not declared with LOCAL-DLET" var))
+                                       `(,(macroexpand var env) ,(second dbinding))))))
+                     ,@body))))
            ,@body)))))
+
+(defmacro with-names (names expression &body body)
+  "Create a data structure with possibly multiple references to objects.
+Like the #n# read macro, this allows the visual structure of the code to mirror
+the shape of the final data structure, but the labels used to refer to parts of
+the structure are also used as variable names and are bound to the corresponding
+parts of the structure within the macro body. Also the object, and the topology
+of its internal references, need not be constant. Requires the use of special
+variants of primitive data constructors."
+  `(let* (;; pre-bind names to unique dummy objects
+          ,@(loop for name in names
+               collect `(,name (list :a-dummy)))
+          ;; create a mapping from those dummies to symbols
+          (*dummy->name* (list ,@(loop for name in names collect
+                                      `(cons ,name ',name))))
+          ;; and a mapping from symbols to final objects, to be filled in later
+          (*name->object*)
+          ;; info about what pointers need to be reassigned later
+          (*targets*))
+     ;; construct skeleton
+     ,expression
+     ;; replace dummy references
+     (replace-dummies)
+     ;; bind actual variable names
+     (let (,@(loop for name in names
+                collect `(,name (lookup ',name *name->object*))))
+       (declare (ignorable ,@names))
+       ;; and make objects accessible through those names in the body
+       ,@body)))
+
+;;;; Auxiliary definitions for WITH-NAMES
+
+(defvar *dummy->name*)
+(defvar *name->object*)
+(defvar *targets*)
+
+(defun lookup (key alist)
+  (cdr (assoc key alist)))
+
+(defun label-cons (head tail)
+  (let ((cons-cell (cons head tail)))
+    (when (assoc head *dummy->name*)
+      (push (cons cons-cell :car) *targets*))
+    (when (assoc tail *dummy->name*)
+      (push (cons cons-cell :cdr) *targets*))
+    cons-cell))
+
+(defun label-list (&rest args)
+  (let ((the-list (apply #'list args)))
+    (iter (for arg in args)
+          (for i from 0)
+          (when (assoc arg *dummy->name*)
+            (push (cons the-list i) *targets*)))
+    the-list))
+
+(defmacro label (name expression)
+  (let ((object (gensym "OBJECT")))
+    `(let ((,object ,expression))
+       (push (cons ',name ,object) *name->object*)
+       ,object)))
+
+(defun replace-dummies ()
+  (iter (for target in *targets*)
+        (let ((structure (car target))
+              (pointer (cdr target)))
+          (case pointer
+            ((:car) (setf (car structure)
+                          (lookup
+                           (lookup (car structure) *dummy->name*)
+                           *name->object*)))
+            ((:cdr) (setf (cdr structure)
+                          (lookup
+                           (lookup (cdr structure) *dummy->name*)
+                           *name->object*)))
+            (t (setf (elt structure pointer)
+                     (lookup
+                      (lookup (elt structure pointer) *dummy->name*)
+                      *name->object*)))))))
