@@ -16,10 +16,10 @@
    #:with-homonymous-accessors
    #:local-dlet
    #:local-drelet
-   #:with-names
-   #:label
-   #:label-cons
-   #:label-list))
+   #:with-named-labels
+   #:=#
+   #:cons#
+   #:list#))
 
 (in-package :shpadoinkle)
 

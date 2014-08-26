@@ -159,7 +159,7 @@ symbol BLANK."
                      ,@body))))
            ,@body)))))
 
-(defmacro with-names (names expression &body body)
+(defmacro with-named-labels (names expression &body body)
   "Create a data structure with possibly multiple references to objects.
 Like the #n# read macro, this allows the visual structure of the code to mirror
 the shape of the final data structure, but the labels used to refer to parts of
@@ -197,7 +197,7 @@ variants of primitive data constructors."
 (defun lookup (key alist)
   (cdr (assoc key alist)))
 
-(defun label-cons (head tail)
+(defun cons# (head tail)
   "Variant of CONS for use in WITH-NAMES to allow references to internal labels."
   (let ((cons-cell (cons head tail)))
     (when (assoc head *dummy->name*)
@@ -206,7 +206,7 @@ variants of primitive data constructors."
       (push (cons cons-cell :cdr) *targets*))
     cons-cell))
 
-(defun label-list (&rest args)
+(defun list# (&rest args)
   "Variant of LIST for use in WITH-NAMES to allow references to internal labels."
   (let ((the-list (apply #'list args)))
     (iter (for arg in args)
@@ -215,7 +215,7 @@ variants of primitive data constructors."
             (push (cons the-list i) *targets*)))
     the-list))
 
-(defmacro label (name expression)
+(defmacro =# (name expression)
   "Establish a label for use within a WITH-NAMES construction form."
   (let ((object (gensym "OBJECT")))
     `(let ((,object ,expression))
