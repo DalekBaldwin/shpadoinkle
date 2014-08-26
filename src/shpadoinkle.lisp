@@ -188,7 +188,7 @@ variants of primitive data constructors."
        ;; and make objects accessible through those names in the body
        ,@body)))
 
-;;;; Auxiliary definitions for WITH-NAMES
+;;;; Auxiliary definitions for WITH-NAMED-LABELS
 
 (defvar *dummy->name*)
 (defvar *name->object*)
@@ -198,7 +198,7 @@ variants of primitive data constructors."
   (cdr (assoc key alist)))
 
 (defun cons# (head tail)
-  "Variant of CONS for use in WITH-NAMES to allow references to internal labels."
+  "Variant of CONS for use in WITH-NAMED-LABELS to allow references to internal labels."
   (let ((cons-cell (cons head tail)))
     (when (assoc head *dummy->name*)
       (push (cons cons-cell :car) *targets*))
@@ -207,7 +207,7 @@ variants of primitive data constructors."
     cons-cell))
 
 (defun list# (&rest args)
-  "Variant of LIST for use in WITH-NAMES to allow references to internal labels."
+  "Variant of LIST for use in WITH-NAMED-LABELS to allow references to internal labels."
   (let ((the-list (apply #'list args)))
     (iter (for arg in args)
           (for i from 0)
@@ -216,7 +216,7 @@ variants of primitive data constructors."
     the-list))
 
 (defmacro =# (name expression)
-  "Establish a label for use within a WITH-NAMES construction form."
+  "Establish a label for use within a WITH-NAMED-LABELS construction form."
   (let ((object (gensym "OBJECT")))
     `(let ((,object ,expression))
        (push (cons ',name ,object) *name->object*)
