@@ -239,3 +239,52 @@ variants of primitive data constructors."
                      (lookup
                       (lookup (elt structure pointer) *dummy->name*)
                       *name->object*)))))))
+
+(defmacro def-conditionalizable-macro (name lambda-list &rest body)
+  "Define a macro in which unevaluated subforms may contain conditionals.
+The test is hoisted to beginning of the expansion and the macro proceeds as if
+the resulting so-called branch had appeared as a single form in the position
+where the conditional appears. For example, if we defined SETF using this macro,
+`(setf (if (test) x y) z)` could expand into `(if (test) (setq x z) (setq y z)`."
+  (let ((processed (gensym "PROCESSED"))
+        (remaining (gensym "REMAINING"))
+        (expression (gensym "EXPRESSION"))
+        (clause (gensym "CLAUSE"))
+        (case (gensym "CASE")))
+    `(defmacro ,name ,lambda-list
+       (labels
+           ((extract-conditionals (,processed ,remaining)
+              (cond
+                ((null ,remaining)
+                 (destructuring-bind ,lambda-list (reverse ,processed)
+                   ,@body))
+                ((atom (first ,remaining))
+                 (extract-conditionals
+                  (cons (first ,remaining) ,processed)
+                  (rest ,remaining)))
+                (t
+                 (let ((,expression (first ,remaining)))
+                   (case (first ,expression)
+                     (if `(if ,(second ,expression)
+                              ,(extract-conditionals
+                                (cons (third ,expression) ,processed)
+                                (rest ,remaining))
+                              ,(extract-conditionals
+                                (cons (fourth ,expression) ,processed)
+                                (rest ,remaining))))
+                     (cond `(cond
+                              ,@(iter (for ,clause in (rest ,expression))
+                                      (collect `(,(first ,clause)
+                                                  ,(extract-conditionals
+                                                    (cons (second ,clause) ,processed)
+                                                    (rest ,remaining)))))))
+                     (case `(case ,(second ,expression)
+                              ,@(iter (for ,case in (nthcdr 2 ,expression))
+                                      (collect `(,(first ,case)
+                                                  ,(extract-conditionals
+                                                    (cons (second ,case) ,processed)
+                                                    (rest ,remaining)))))))
+                     (otherwise (extract-conditionals
+                                 (cons ,expression ,processed)
+                                 (rest ,remaining)))))))))
+         (extract-conditionals nil (list ,@lambda-list))))))
