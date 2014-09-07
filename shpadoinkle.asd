@@ -11,7 +11,9 @@
   ((:static-file "shpadoinkle.asd")
    (:module :src
             :components ((:file "package")
-                         (:file "shpadoinkle" :depends-on ("package")))))
+                         (:file "shpadoinkle")
+                         (:file "with-named-labels"))
+            :serial t))
   :depends-on (:iterate :alexandria :named-readtables))
 
 (defsystem :shpadoinkle-test
@@ -20,5 +22,6 @@
   :components
   ((:module :test
             :components ((:file "package")
-                         (:file "shpadoinkle-test" :depends-on ("package")))))
+                         (:file "shpadoinkle-test"))
+            :serial t))
   :depends-on (:shpadoinkle :stefil :lisp-unit))
