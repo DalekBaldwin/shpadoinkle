@@ -288,3 +288,28 @@ where the conditional appears. For example, if we defined SETF using this macro,
                                  (cons ,expression ,processed)
                                  (rest ,remaining)))))))))
          (extract-conditionals nil (list ,@lambda-list))))))
+
+(defun subst-fun (new old tree &key key (test #'eql testp) (test-not #'eql notp))
+  "A higher-order version of SUBST, useful for simple code transformations.
+Instead of passing a single element to replace all matching nodes in a TREE,
+NEW is a function that takes the existing node as input. Based on SBCL's
+implementation of SUBST."
+  (when (and testp notp)
+    (error ":TEST and :TEST-NOT were both supplied."))
+  (labels ((s (subtree)
+             (cond ((let ((key-tmp (if key
+                                       (funcall key subtree)
+                                       subtree)))
+                      (cond (testp (funcall test old key-tmp))
+                            (notp (not (funcall test-not old key-tmp)))
+                            (t (funcall test old key-tmp))))
+                    (funcall new subtree))
+                   ((atom subtree)
+                    subtree)
+                   (t (let ((car (s (car subtree)))
+                            (cdr (s (cdr subtree))))
+                        (if (and (eq car (car subtree))
+                                 (eq cdr (cdr subtree)))
+                            subtree
+                            (cons car cdr)))))))
+    (s tree)))

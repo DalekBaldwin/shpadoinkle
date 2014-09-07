@@ -20,7 +20,8 @@
    #:=#
    #:cons#
    #:list#
-   #:def-conditionalizable-macro))
+   #:def-conditionalizable-macro
+   #:subst-fun))
 
 (in-package :shpadoinkle)
 
