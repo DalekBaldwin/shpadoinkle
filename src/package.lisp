@@ -19,7 +19,8 @@
    #:with-named-labels
    #:=#
    #:cons#
-   #:list#))
+   #:list#
+   #:def-conditionalizable-macro))
 
 (in-package :shpadoinkle)
 
