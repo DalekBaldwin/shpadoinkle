@@ -1,4 +1,4 @@
-(in-package :cl)
+(in-package :cl-user)
 
 (defpackage :shpadoinkle-test
   (:use :cl :shpadoinkle :stefil :lisp-unit)
