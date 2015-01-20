@@ -21,7 +21,8 @@
    #:cons#
    #:list#
    #:def-conditionalizable-macro
-   #:subst-fun))
+   #:subst-fun
+   #:format-exact-decimal))
 
 (in-package :shpadoinkle)
 
