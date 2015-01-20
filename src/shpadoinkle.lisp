@@ -233,14 +233,13 @@ implementation of SUBST."
                             (cons car cdr)))))))
     (s tree)))
 
-(defun format-exact-decimal (stream arg colon at &rest params)
+(defun format-exact-decimal (stream arg colon at &optional (power 0))
   "Print integer shifted by number of decimal places indicated in first param.
-This is necessary for printing large exact currency amounts because ~$ directive
-on rationals may cause rounding."
+This is necessary for printing large exact currency amounts because using the ~$
+format directive on rationals may cause rounding."
   (declare
-   (ignorable colon at)
+   (ignore colon at)
    (type integer arg))
-  (let* ((power (or (first params) 0))
-         (scale (expt 10 power)))
+  (let* ((scale (expt 10 power)))
     (multiple-value-bind (whole fraction) (floor (/ arg scale))
       (format stream "~D.~V,'0D" whole power (* scale fraction)))))
