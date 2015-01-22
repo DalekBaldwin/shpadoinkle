@@ -244,7 +244,7 @@ format directive on rationals may cause rounding."
     (multiple-value-bind (whole fraction) (floor (/ arg scale))
       (format stream "~D.~V,'0D" whole power (* scale fraction)))))
 
-(defmacro destructuring-lambda (params &rest body)
+(defmacro destructuring-lambda (params &body body)
   (let ((shallow-params (gensym "SHALLOW-PARAMS")))
     `(lambda (&rest ,shallow-params)
        (destructuring-bind (,params) ,shallow-params
