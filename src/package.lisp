@@ -22,7 +22,8 @@
    #:list#
    #:def-conditionalizable-macro
    #:subst-fun
-   #:format-exact-decimal))
+   #:format-exact-decimal
+   #:destructuring-lambda))
 
 (in-package :shpadoinkle)
 
