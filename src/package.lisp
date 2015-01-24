@@ -1,7 +1,7 @@
-(in-package :cl-user)
+(in-package #:cl-user)
 
-(defpackage :shpadoinkle
-  (:use :cl :iter :alexandria :named-readtables)
+(defpackage #:shpadoinkle
+  (:use #:cl #:iter #:alexandria #:named-readtables)
   (:export
    #:with-saved-values
    #:with-constructors
@@ -25,10 +25,10 @@
    #:format-exact-decimal
    #:destructuring-lambda))
 
-(in-package :shpadoinkle)
+(in-package #:shpadoinkle)
 
 (defparameter *system-directory*
   (make-pathname
    :directory 
    (pathname-directory
-    (asdf:system-definition-pathname :shpadoinkle))))
+    (asdf:system-definition-pathname "shpadoinkle"))))

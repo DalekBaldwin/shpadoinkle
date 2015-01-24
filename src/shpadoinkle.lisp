@@ -1,4 +1,4 @@
-(in-package :shpadoinkle)
+(in-package #:shpadoinkle)
 
 (defmacro with-saved-values (places &body body)
   "Restore values of setf-able PLACES after normal or erroneous exit from BODY."

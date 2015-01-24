@@ -1,10 +1,10 @@
 ;;;; shpadoinkle.asd
 
-(defpackage :shpadoinkle-system
-  (:use :cl :asdf))
-(in-package :shpadoinkle-system)
+(defpackage #:shpadoinkle-system
+  (:use #:cl #:asdf))
+(in-package #:shpadoinkle-system)
 
-(defsystem :shpadoinkle
+(defsystem #:shpadoinkle
   :name "shpadoinkle"
   :serial t
   :components
@@ -14,9 +14,9 @@
                          (:file "shpadoinkle")
                          (:file "with-named-labels"))
             :serial t))
-  :depends-on (:iterate :alexandria :named-readtables))
+  :depends-on (#:iterate #:alexandria #:named-readtables))
 
-(defsystem :shpadoinkle-test
+(defsystem #:shpadoinkle-test
   :name "shpadoinkle-test"
   :serial t
   :components
@@ -24,4 +24,4 @@
             :components ((:file "package")
                          (:file "shpadoinkle-test"))
             :serial t))
-  :depends-on (:shpadoinkle :stefil :lisp-unit))
+  :depends-on (#:shpadoinkle #:stefil #:lisp-unit))
