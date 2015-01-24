@@ -1,4 +1,4 @@
-(in-package #:shpadoinkle-test)
+(in-package :shpadoinkle-test)
 
 (in-root-suite)
 

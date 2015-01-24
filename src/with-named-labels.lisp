@@ -1,4 +1,4 @@
-(in-package #:shpadoinkle)
+(in-package :shpadoinkle)
 
 (defmacro with-named-labels (names expression &body body)
   "Create a data structure with possibly multiple references to objects.
