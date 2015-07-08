@@ -249,3 +249,61 @@ format directive on rationals may cause rounding."
     `(lambda (&rest ,shallow-params)
        (destructuring-bind (,params) ,shallow-params
          ,@body))))
+
+(defmacro def-dynkey-fun (name args &body body)
+  "Define a function with the additional lambda list directive &dynkey.
+Symbols listed after &dynkey can be used to optionally establish new
+bindings for special variables."
+  (create-dynkey-fun-form name args body))
+
+(defun separate-dynkeys (args)
+  (let ((in-dynkeys nil))
+    (destructuring-bind (reverse-standard reverse-dynkeys)
+        (reduce
+         (lambda (accum new)
+           (cond
+             (in-dynkeys
+              (when (not (and (symbolp new)
+                              (not (keywordp new))))
+                (error "Dynkey ~A is not a non-keyword symbol in lambda list: ~A"
+                       new args))
+              (when (member new (list '&optional '&key '&rest))
+                (error "Misplaced ~A in dynkey lambda list: ~A"
+                       new args))
+              (destructuring-bind (standard dynkeys) accum
+                (cond ((member new (list '&allow-other-keys '&aux))
+                       (setf in-dynkeys nil)
+                       (list (list* new standard) dynkeys))
+                      (t
+                       (list standard (list* new dynkeys))))))
+             (t
+              (destructuring-bind (standard dynkeys) accum
+                (cond
+                  ((eql new '&dynkey)
+                   (setf in-dynkeys t)
+                   accum)
+                  (t
+                   (list (list* new standard) dynkeys)))))))
+         args
+         :initial-value (list nil nil))
+      (values (reverse reverse-standard)
+              (reverse reverse-dynkeys)))))
+
+(defun create-dynkey-fun-form (name args body)
+  (multiple-value-bind (standard dynkeys) (separate-dynkeys args)
+    (multiple-value-bind (required optional rest keys allow-other-keys aux)
+        (parse-ordinary-lambda-list standard :normalize nil)
+      (let ((new-keys (append (mapcar (lambda (sym) `(,sym ,sym)) dynkeys)
+                              keys)))
+        (multiple-value-bind (code-body decls doc)
+            (parse-body body :documentation t)
+          `(defun ,name (,@required
+                         ,@(when optional `(&optional ,@optional))
+                                              ,@(when rest `(&rest ,rest))
+                         &key ,@new-keys
+                           ,@(when allow-other-keys `(&allow-other-keys))
+                           ,@(when aux `(&aux ,@aux)))
+             ,@(when doc (list doc))
+             (declare (special ,@dynkeys))
+             ,@decls
+             ,@code-body))))))

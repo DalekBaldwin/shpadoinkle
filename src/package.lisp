@@ -23,7 +23,9 @@
    #:def-conditionalizable-macro
    #:subst-fun
    #:format-exact-decimal
-   #:destructuring-lambda))
+   #:destructuring-lambda
+   #:def-dynkey-fun
+   #:&dynkey))
 
 (in-package :shpadoinkle)
 
