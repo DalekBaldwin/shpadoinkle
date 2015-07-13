@@ -307,3 +307,24 @@ bindings for special variables."
              (declare (special ,@dynkeys))
              ,@decls
              ,@code-body))))))
+
+(defun gen-vars (size prefix)
+  (loop for i below size
+     collect (make-symbol (format nil "~A-~A" prefix i))))
+
+(defun partially-ordered-p (predicate list)
+  (cond
+    ((or (endp list) (endp (rest list)))
+     t)
+    (t
+     (values t
+             (reduce (lambda (prev-item new-item)
+                       (if (funcall predicate prev-item new-item)
+                           new-item
+                           (return-from partially-ordered-p nil)))
+                     (rest list) :initial-value (first list))))))
+
+(defmacro equal-values (&rest forms)
+  `(partially-ordered-p
+    #'equal
+    (list ,@(loop for form in forms collect `(multiple-value-list ,form)))))
