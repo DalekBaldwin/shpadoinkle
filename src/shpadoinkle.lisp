@@ -314,8 +314,10 @@ bindings for special variables."
 
 (defun partially-ordered-p (predicate list)
   (cond
-    ((or (endp list) (endp (rest list)))
+    ((endp list)
      t)
+    ((endp (rest list))
+     (valuest t (first list)))
     (t
      (values t
              (reduce (lambda (prev-item new-item)
